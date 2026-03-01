@@ -170,7 +170,11 @@ class HousePricesPreprocessor:
                 global_mean = means.mean()
                 df[col] = df[col].map(means).fillna(global_mean)
 
-        # 6. Нормализация (опционально)
+        # 6. Конвертируем bool в int
+        bool_cols = df.select_dtypes(include="bool").columns
+        df[bool_cols] = df[bool_cols].astype(int)
+
+        # 7. Нормализация (опционально)
         if self.scale:
             num_cols = df.select_dtypes(include="number").columns
             if self.scaler_ is None:
@@ -178,10 +182,6 @@ class HousePricesPreprocessor:
                 df[num_cols] = self.scaler_.fit_transform(df[num_cols])
             else:
                 df[num_cols] = self.scaler_.transform(df[num_cols])
-
-        # Конвертируем bool в int
-        bool_cols = df.select_dtypes(include="bool").columns
-        df[bool_cols] = df[bool_cols].astype(int)
 
         return df
 
